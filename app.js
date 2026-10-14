@@ -16,6 +16,61 @@ function mostrarPanel(){
   document.querySelector("#panel").classList.remove("oculto");
 }
 
+// guardo aqui las tareas
+let tareas = [];
+
+async function cargarTareas() {
+  try{
+    const respuesta = await fetch(`${API}todos/user/${usuarioActual.id}`);
+
+    if (!respuesta.ok){ //osea que si es negativo a respuesa. me estoy muriendo de sueno
+      console.error("No se pudieron cargar las tareas")
+      return;
+    }
+
+    const datos = await respuesta.json();
+    tareas = datos.todos; //api manda las tareas en 'todos' c: ayuda
+    pintarTareas();
+  }catch (error){
+    console.log(error);
+  }
+}
+
+function pintarTareas(){
+  const filtro = document.querySelector("#filtro").value;
+  const texto = document.querySelector("#buscador").value.toLowerCase();
+
+  const visibles = tareas
+    .filter((t) => {
+      if (filtro === "pendientes") return !t.completed;
+      if (filtro === "completadas") return t.completed;
+      return true;
+    })
+    .filter((t) => t.todo.toLowerCase().includes(texto));
+
+  // contadores completos
+  const total = tareas.length;
+  const completadas = tareas.reduce((suma, t) => (t.completed ? suma + 1 : suma), 0);
+  const pendientes = total - completadas;
+  const porcentaje = total === 0 ? 0 : Math.round((completadas / total) * 100);
+  document.querySelector("#contadores").textContent =
+    `Total: ${total} | Completadas: ${completadas} | Pendientes: ${pendientes} | Avance: ${porcentaje}%`;
+
+  // map onvierto cada tarea en un <li>
+  if (visibles.length === 0) {
+    document.querySelector("#lista_tareas").innerHTML = "<li>No hay tareas</li>";
+    return;
+  }
+
+  document.querySelector("#lista_tareas").innerHTML = visibles
+    .map((t) => `<li>${t.completed ? "check" : "checknt"} ${t.todo}</li>`)
+    .join("");
+}
+
+document.querySelector("#filtro").addEventListener("change", pintarTareas);
+document.querySelector("#buscador").addEventListener("input", pintarTareas);
+
+// cargar perfil xd
 async function cargarPerfil() {
     const token = localStorage.getItem("token");
 
@@ -42,6 +97,7 @@ async function cargarPerfil() {
         document.querySelector("#edad").textContent = `Edad: ${usuario.age}`;
 
         mostrarPanel();
+        cargarTareas();
     } catch (error) {
         console.log(error);
         mostrarLogin();
