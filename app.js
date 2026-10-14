@@ -16,6 +16,117 @@ function mostrarPanel(){
   document.querySelector("#panel").classList.remove("oculto");
 }
 
+//crud
+async function agregarTarea(texto) {
+    try {
+        const respuesta = await fetch(`${API}todos/add`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                todo: texto,
+                completed: false,
+                userId: usuarioActual.id,
+            }),
+        });
+
+        if (!respuesta.ok) {
+            document.querySelector("#aviso").textContent = "No se pudo agregar la tarea";
+            return;
+        }
+
+        const nueva = await respuesta.json();
+
+        // el servidor siempre regresa el mismo id, asi que le pongo uno propio
+        const idNuevo = tareas.reduce((max, t) => (t.id > max ? t.id : max), 0) + 1;
+
+        tareas.push({
+            id: idNuevo,
+            todo: nueva.todo,
+            completed: false,
+            local: true, // marca para saber que no existe en el servidor
+        });
+
+        pintarTareas();
+    } catch (error) {
+        console.error(error);
+        document.querySelector("#aviso").textContent = "No se pudo conectar con el servidor";
+    }
+}
+
+document.querySelector("#form_tarea").addEventListener("submit", (evento) => {
+    evento.preventDefault();
+
+    const texto = document.querySelector("#texto_tarea").value.trim();
+
+    // si esta vacio, aviso y no agrego
+    if (texto === "") {
+        document.querySelector("#aviso").textContent = "Escribe una tarea";
+        return;
+    }
+
+    document.querySelector("#aviso").textContent = "";
+    agregarTarea(texto);
+    document.querySelector("#form_tarea").reset();
+});
+
+async function borrarTarea(id) {
+    const tarea = tareas.find((t) => t.id === id);
+
+    if (tarea.local) {
+        tareas = tareas.filter((t) => t.id !== id);
+        pintarTareas();
+        return;
+    }
+
+    try {
+        const respuesta = await fetch(`${API}todos/${id}`, {
+            method: "DELETE",
+        });
+
+        if (!respuesta.ok) {
+            document.querySelector("#aviso").textContent = "No se pudo eliminar la tarea";
+            return;
+        }
+
+        // filter: dejo todas menos la borrada
+        tareas = tareas.filter((t) => t.id !== id);
+        pintarTareas();
+    } catch (error) {
+        console.error(error);
+        document.querySelector("#aviso").textContent = "No se pudo conectar con el servidor";
+    }
+}
+
+async function cambiarEstado(id) {
+   //busco la tarea en mi arreglo
+    const tarea = tareas.find((t) => t.id === id);
+
+    if (tarea.local) {
+        tarea.completed = !tarea.completed;
+        pintarTareas();
+        return;
+    }
+
+    try {
+        const respuesta = await fetch(`${API}todos/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ completed: !tarea.completed }),
+        });
+
+        if (!respuesta.ok) {
+            document.querySelector("#aviso").textContent = "No se pudo actualizar la tarea";
+            return;
+        }
+
+        tarea.completed = !tarea.completed;
+        pintarTareas();
+    } catch (error) {
+        console.error(error);
+        document.querySelector("#aviso").textContent = "No se pudo conectar con el servidor";
+    }
+}
+
 // guardo aqui las tareas
 let tareas = [];
 
@@ -63,7 +174,13 @@ function pintarTareas(){
   }
 
   document.querySelector("#lista_tareas").innerHTML = visibles
-    .map((t) => `<li>${t.completed ? "check" : "checknt"} ${t.todo}</li>`)
+    .map((t) => `
+        <li>
+            ${t.completed ? "check" : "checknt"} ${t.todo}
+            <button data-id="${t.id}" data-accion="completar">${t.completed ? "Pendiente" : "Completar"}</button>
+            <button data-id="${t.id}" data-accion="borrar">Eliminar</button>
+        </li>
+    `)
     .join("");
 }
 
