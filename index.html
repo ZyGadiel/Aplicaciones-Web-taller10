@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesion</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Inicio de sesion</h1>
+    </header>
+
+    <main>
+        <section class="inicio_sesion">
+            <h2>Ingresa datos</h2>
+            <form id="form_login">
+                <label for="texto_usuario">Nombre de usuario</label>
+                <input type="text" name="usuario" id="texto_usuario">
+                <label for="texto_contrasena">Contraseña</label>
+                <input type="password" name="contrasena" id="texto_contrasena">
+                <button id="enviar_form">Enviar</button>
+            </form>
+            <p id="mensaje"></p>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
