@@ -127,6 +127,14 @@ async function cambiarEstado(id) {
     }
 }
 
+document.querySelector("#lista_tareas").addEventListener("click", (evento) => {
+    const id = Number(evento.target.dataset.id);
+    const accion = evento.target.dataset.accion;
+
+    if (accion === "completar") cambiarEstado(id);
+    if (accion === "borrar") borrarTarea(id);
+});
+
 // guardo aqui las tareas
 let tareas = [];
 
