@@ -15,7 +15,7 @@
     </header>
 
     <main>
-       <!--arte de inicio de sesion-->
+       <!--arte1 de inicio de sesion-->
         <section class="inicio_sesion" id="seccion_login">
             <h2>Ingresa datos</h2>
             <form id="form_login">
@@ -28,7 +28,7 @@
             <p id="mensaje"></p>
         </section>
 
-        <!--Parte de panel perfil.-->
+        <!--Parte2 de panel perfil.-->
         <section id="panel" class="oculto">
             <h2>Mi perfil</h2>
             <img id="foto" src="" alt="Foto de perfil">
@@ -38,6 +38,19 @@
             <p id="telefono"></p>
             <p id="edad"></p>
             <button id="btn_salir">Cerrar sesion</button>
+
+            <!--parte3 listar tareas-->
+            <h2>Mis tareas</h2>
+            <p id="contadores"></p>
+
+            <select" id="filtro">
+                <option value="todas">Todas</option>
+                <option value="pendientes">Pendientes</option>
+                <option value="completadas">Completadas</option> 
+            </select>
+            <input type="text" name="Buscar tarea" id="buscador">
+
+            <ul id="lista_tareas"></ul>
         </section>
     </main>
 
